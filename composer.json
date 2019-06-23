@@ -1,0 +1,66 @@
+{
+    "name": "amber/http-kernell",
+    "description": "",
+    "type": "library",
+    "license": "GPL-3.0-or-later",
+    "authors": [
+        {
+            "name": "Deivi Peña",
+            "email": "systemson@gmail.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "autoload": {
+        "psr-4": {
+            "Amber\\Http\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "tests/"
+        }
+    },
+    "require": {
+        "php": ">=7.2.0",
+        "psr/http-server-handler": "^1.0",
+        "psr/http-message": "^1.0",
+        "psr/http-factory": "^1.0",
+        "psr/http-server-middleware": "^1.0"
+    },
+    "require-dev": {
+        "php-coveralls/php-coveralls": "^2.1"
+    },
+    "scripts": {
+        "test": "phpunit",
+        "docs": "php sami.phar update samiConfig.php -v",
+        "sniff": "phpcs --standard=PSR12 ./src",
+        "fix-cs": "phpcbf --standard=PSR12 ./src",
+        "type-hint": "psalm --show-info=false",
+        "speed": "php ./tests/Benchmark.php",
+        "pull": [
+            "git pull",
+            "composer update -vvv"
+        ],
+        "full-check": [
+            "@test",
+            "@docs",
+            "@sniff",
+            "@type-check"
+        ],
+        "post-update-cmd": [
+            "@test"
+        ]
+    },
+    "config": {
+        "preferred-install": "dist",
+        "sort-packages": true,
+        "optimize-autoloader": true,
+        "process-timeout": 0
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "0.1.x-dev"
+        }
+    }
+}
