@@ -4,7 +4,6 @@ namespace Amber\Http\Message;
 
 use Psr\Http\Message\ServerRequestInterface;
 use Amber\Http\Message\Traits\RequestTrait;
-use Amber\Http\Message\Traits\RequestUtilsTrait;
 use Amber\Collection\Collection;
 use Amber\Collection\ImmutableCollection;
 
@@ -48,7 +47,7 @@ use Amber\Collection\ImmutableCollection;
  */
 class ServerRequest implements ServerRequestInterface
 {
-    use RequestTrait, RequestUtilsTrait;
+    use RequestTrait;
 
     protected $version;
     protected $method;
@@ -65,10 +64,10 @@ class ServerRequest implements ServerRequestInterface
     protected $attributes;
 
     public function __construct(
-        string $version = null,
+        string $version,
         string $method = null,
         string $uri = null,
-        array $headers = null,
+        array $headers = [],
         string $body = null,
         $params = []
     ) {
@@ -82,7 +81,7 @@ class ServerRequest implements ServerRequestInterface
 
         $this->version = $version ?? explode('/', $this->server->get('SERVER_PROTOCOL'))[1];
         $this->method = $method ?? $this->server->get('REQUEST_METHOD');
-        $this->uri = $uri ? Uri::fromString($uri) : Uri::fromGlobals();
+        $this->uri = $uri ? Uri::fromString($uri) : null;
         $this->body = $body;
     }
 

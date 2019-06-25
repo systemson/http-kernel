@@ -1,11 +1,12 @@
 <?php
 
-namespace Amber\Framework\Http\Message;
+namespace Amber\Http\Message;
 
 use Psr\Http\Message\UriInterface;
 use Psr\Http\Message\ServerRequestInterface as Request;
-use Amber\Framework\Http\Message\Traits\ClonableTrait;
+use Amber\Http\Message\Traits\ClonableTrait;
 use Amber\Collection\Collection;
+use Amber\Collection\Contracts\CollectionInterface;
 use Amber\Phraser\Phraser;
 
 /**
@@ -154,13 +155,17 @@ class Uri implements UriInterface
      *
      * @return array
      */
-    protected static function getComponentsFromServerParams($server): array
+    protected static function getComponentsFromServerParams(CollectionInterface $server): array
     {
+        if ($server->get('REQUEST_URI')) {
+            $path = explode('?', $server->get('REQUEST_URI'))[0];
+        }
+
         return [
             'scheme' => strtolower(explode('/', $server->get('SERVER_PROTOCOL'))[0]),
             'host' => $server->get('HTTP_HOST'),
             'port' => $server->get('SERVER_PORT'),
-            'path' => explode('?', $server->get('REQUEST_URI'))[0],
+            'path' => $path ?? '/',
             'query' => $server->get('QUERY_STRING'),
         ];
     }

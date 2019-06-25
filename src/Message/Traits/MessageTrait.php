@@ -1,6 +1,6 @@
 <?php
 
-namespace Amber\Framework\Http\Message\Traits;
+namespace Amber\Http\Message\Traits;
 
 use Psr\Http\Message\StreamInterface;
 use Sunrise\Stream\StreamFactory;
@@ -18,7 +18,7 @@ trait MessageTrait
      */
     public function getProtocolVersion()
     {
-        return $this->protocol;
+        return $this->version;
     }
 
     /**

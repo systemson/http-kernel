@@ -1,9 +1,10 @@
 <?php
 
-namespace Amber\Framework\Http\Message\Traits;
+namespace Amber\Http\Message\Traits;
 
 use Psr\Http\Message\StreamInterface;
 use Psr\Http\Message\UriInterface;
+use Amber\Http\Message\Uri;
 
 /**
  * Representation of an outgoing, client-side request.
@@ -46,11 +47,7 @@ trait RequestTrait
      */
     public function getRequestTarget()
     {
-        if (!is_null($this->uri)) {
-            return (string) $this->uri;
-        }
-
-        return '/';
+        return (string) $this->getUri();
     }
 
     /**
@@ -124,7 +121,11 @@ trait RequestTrait
      */
     public function getUri()
     {
-        return $this->uri;
+        if (!is_null($this->uri)) {
+            return $this->uri;
+        }
+
+        return Uri::fromGlobals();
     }
 
     /**
