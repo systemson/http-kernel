@@ -2,18 +2,21 @@
 
 namespace Amber\Http\Server;
 
-use Psr\Container\ContainerInterface;
 use Amber\Collection\Collection;
+use Amber\Http\Message\Utils\RequestMethodInterface;
+use Amber\Http\Message\Utils\StatusCodeInterface;
+use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
-use Psr\Http\Server\RequestHandlerInterface;
-use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\StreamFactoryInterface;
+use Psr\Http\Server\RequestHandlerInterface;
+use Psr\Http\Server\MiddlewareInterface;
 
-class RequestHandler implements RequestHandlerInterface
+class RequestHandler implements RequestHandlerInterface, RequestMethodInterface, StatusCodeInterface
 {
     protected $responseFactory;
+    protected $streamFactory;
     protected $middlewares = [];
     protected $container;
     protected $index;
@@ -28,8 +31,10 @@ class RequestHandler implements RequestHandlerInterface
         $this->container = $container;
     }
 
-    public function newResponse(int $code = 200, string $reasonPhrase = ''): Response
-    {
+    public function newResponse(
+        int $code = self::STATUS_OK,
+        string $reasonPhrase = ''
+    ): Response {
         return $this->responseFactory->createResponse($code, $reasonPhrase);
     }
 
@@ -45,10 +50,14 @@ class RequestHandler implements RequestHandlerInterface
         if (isset($this->middlewares[$id])) {
             $response =  $this->getMiddleware($id)->process($request, $this);
         } else {
-            $response = $this->newResponse();
+            $response = $this->default();
         }
 
-        return $this->setResponseBody($request, $response);
+        if ($response->getStatusCode() >= 400 && $response->getBody()->__toString() === '') {
+            return $this->alterResponseBody($request, $response);
+        }
+
+        return $response;
     }
 
     public function next(): int
@@ -58,6 +67,11 @@ class RequestHandler implements RequestHandlerInterface
         }
 
         return $this->index++;
+    }
+
+    public function default()
+    {
+        return $this->newResponse();
     }
 
     public function addMiddleware(string $middleware)
@@ -101,23 +115,35 @@ class RequestHandler implements RequestHandlerInterface
         return $middlewares;
     }
 
-    protected function setResponseBody(Request $request, Response $response): Response
-    {
-        if ($response->getStatusCode() <= 400) {
-            return $response;
-        }
-
+    protected function alterResponseBody(
+        Request $request,
+        Response $response
+    ): Response {
         $reason = $response->reasonPhrase;
 
         /* Check if the request wants a json response */
-        if ($request->acceptsJson()) {
+        if (strpos($request->getHeader('Accept'), 'application/json') !== false) {
             $body = json_encode(['message' => $reason]);
+
+            $response = $response->withHeader('Content-type', 'application/json');
         } else {
             $body = $reason;
         }
 
-        $streamFactory = $this->container->get(StreamFactoryInterface::class);
+        return $response->withBody($this->getStreamFactory()->createStream($body));
+    }
 
-        return $response->withBody($streamFactory->createStream($body));
+    protected function getStreamFactory(): StreamFactoryInterface
+    {
+        if ($this->streamFactory instanceof StreamFactoryInterface) {
+            return $this->streamFactory;
+        } elseif ($this->container instanceof ContainerInterface) {
+            return $this->streamFactory = $this->container->get(StreamFactoryInterface::class);
+        }
+
+        /**
+         * @todo Should be a valid stream factory.
+         */
+        return $this->streamFactory = new StreamFactory();
     }
 }

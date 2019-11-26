@@ -18,7 +18,7 @@ trait MessageTrait
      */
     public function getProtocolVersion()
     {
-        return $this->version;
+        return $this->protocol;
     }
 
     /**
@@ -177,7 +177,7 @@ trait MessageTrait
         $new = $this->clone();
 
         foreach ((array) $value as $value) {
-            $new->headers->append($name, $value);
+            $new->headers[$name][] = $value;
         }
 
         return $new;

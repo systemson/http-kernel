@@ -15,9 +15,9 @@ class RequestTest extends TestCase
         return new ServerRequest(
         	$version ?? '1.1',
         	$method ?? 'GET',
-        	$uri ?? null,
+        	$uri ?? '/',
         	$headers ?? [],
-        	$body ?? '',
+        	$body ?? null,
         );
 	}
 

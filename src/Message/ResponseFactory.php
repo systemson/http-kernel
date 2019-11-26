@@ -2,7 +2,6 @@
 
 namespace Amber\Http\Message;
 
-use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamFactoryInterface;
@@ -10,18 +9,6 @@ use Amber\Http\Message\Utils\StatusCodeInterface;
 
 class ResponseFactory implements ResponseFactoryInterface, StatusCodeInterface
 {
-    private $container;
-
-    /**
-     * Creates a new instance of the class.
-     *
-     * @param ContainerInterface $container An instance of a PSR Container.
-     */
-    public function __construct(ContainerInterface $container)
-    {
-        $this->container = $container;
-    }
-
     /**
      * Create a new response.
      *
@@ -34,10 +21,10 @@ class ResponseFactory implements ResponseFactoryInterface, StatusCodeInterface
         int $code = self::STATUS_OK,
         string $reasonPhrase = ''
     ): ResponseInterface {
-        $response = $this->ok();
+        $response = new Response();
 
         return $response
-            ->withHeader('Cache-Control', ['no-cache', 'private'])
+            //->withHeader('Cache-Control', ['no-cache', 'private'])
             ->withStatus($code, $reasonPhrase)
         ;
     }
@@ -53,11 +40,7 @@ class ResponseFactory implements ResponseFactoryInterface, StatusCodeInterface
      */
     public function ok()
     {
-        if ($this->container instanceof ContainerInterface && $this->container->has(ResponseInterface::class)) {
-            return $this->container->get(ResponseInterface::class);
-        }
-
-        return new Response();
+        return $this->createResponse();
     }
 
     /**
@@ -112,6 +95,16 @@ class ResponseFactory implements ResponseFactoryInterface, StatusCodeInterface
     public function redirect(string $to = '/'): ResponseInterface
     {
         return $this->createResponse(self::STATUS_SEE_OTHER)->withHeader('Location', $to);
+    }
+
+    /**
+     * A 303 status code, or Redirect, is meant to redirect a POST, PUT, PATCH, DELETE request to a GET resource.
+     *
+     * @return ResponseInterface
+     */
+    public function redirectBack(): ResponseInterface
+    {
+        return $this->redirect($_SERVER['HTTP_REFERER']);
     }
 
     /**
@@ -176,6 +169,19 @@ class ResponseFactory implements ResponseFactoryInterface, StatusCodeInterface
     public function methodNotAllowed(string $reasonPhrase = ''): ResponseInterface
     {
         return $this->createResponse(self::STATUS_METHOD_NOT_ALLOWED, $reasonPhrase);
+    }
+
+    /**
+     * The 422 status code, or a Unprocessable Entity error, the server understands the content type of the request
+     * entity and the syntax of the request entity is correct but was unable to process the contained instructions.
+     *
+     * @param string $reasonPhrase Reason phrase to associate with status code.
+     *
+     * @return ResponseInterface
+     */
+    public function unprocessableEntity(string $reasonPhrase = ''): ResponseInterface
+    {
+        return $this->createResponse(self::STATUS_UNPROCESSABLE_ENTITY, $reasonPhrase);
     }
 
     /**

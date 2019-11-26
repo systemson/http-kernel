@@ -3,9 +3,12 @@
 namespace Amber\Http\Message;
 
 use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Message\StreamInterface;
 use Amber\Http\Message\Traits\RequestTrait;
+use Amber\Http\Message\Traits\RequestUtilsTrait;
 use Amber\Collection\Collection;
 use Amber\Collection\ImmutableCollection;
+use Amber\Http\Message\Utils\FileCollection;
 
 /**
  * Representation of an incoming, server-side HTTP request.
@@ -47,41 +50,43 @@ use Amber\Collection\ImmutableCollection;
  */
 class ServerRequest implements ServerRequestInterface
 {
-    use RequestTrait;
+    use RequestTrait, RequestUtilsTrait;
 
     protected $version;
     protected $method;
     protected $uri;
-    protected $headers;
+    protected $protocol = self::PROTOCOL_VERSION;
     protected $body;
 
-    protected $server;
-    protected $cookies;
-    protected $query;
-    protected $files;
-    protected $post;
+    public $headers;
+    public $server;
+    public $cookies;
+    public $query;
+    public $post;
+    public $files;
+    public $attributes;
 
-    protected $attributes;
+    const PROTOCOL_VERSION = '1.1';
 
     public function __construct(
-        string $version,
+        string $version = self::PROTOCOL_VERSION,
         string $method = null,
-        string $uri = null,
+        string $uri = '',
         array $headers = [],
-        string $body = null,
+        StreamInterface $body = null,
         $params = []
     ) {
-        $this->server = new ImmutableCollection($params['server'] ?? $_SERVER);
-        $this->cookies = new Collection($params['cookies'] ?? $_COOKIE);
-        $this->query = new Collection($params['query'] ?? $_GET);
-        $this->files = new Collection($params['files'] ?? $_FILES);
-        $this->post = new Collection($params['post'] ?? $_POST);
+        $this->server = new ImmutableCollection($params['server'] ?? []);
+        $this->cookies = new Collection($params['cookies'] ?? []);
+        $this->query = new Collection($params['query'] ?? []);
+        $this->files = new FileCollection($params['files'] ?? []);
+        $this->post = new Collection($params['post'] ?? []);
+        $this->headers = new Collection($headers);
         $this->attributes = new Collection($params['attributes'] = []);
-        $this->headers = new Collection($headers ?? getallheaders());
 
-        $this->version = $version ?? explode('/', $this->server->get('SERVER_PROTOCOL'))[1];
-        $this->method = $method ?? $this->server->get('REQUEST_METHOD');
-        $this->uri = $uri ? Uri::fromString($uri) : null;
+        $this->version = $version;
+        $this->method = $method;
+        $this->uri = Uri::fromString($uri);
         $this->body = $body;
     }
 
@@ -92,9 +97,44 @@ class ServerRequest implements ServerRequestInterface
      */
     public static function fromGlobals()
     {
-        $new = new static();
+        $serverProtocolArray = explode('/', $_SERVER['SERVER_PROTOCOL'] ?? self::PROTOCOL_VERSION);
+
+        $new = new static(
+            end($serverProtocolArray),
+            $_SERVER['REQUEST_METHOD'] ?? null,
+            Uri::fromGlobals(),
+            self::getGlobalHeaders(),
+            null,
+            [
+                'server' => $_SERVER,
+                'cookies' => $_COOKIE,
+                'query' => $_GET,
+                'files' => $_FILES,
+                'post' => $_POST,
+                'attributes' => [],
+            ]
+        );
 
         return $new;
+    }
+
+    protected static function getGlobalHeaders(): array
+    {
+        if (function_exists('getallheaders')) {
+            return getallheaders();
+        }
+
+        if (!isset($_SERVER)) {
+            return [];
+        }
+
+        foreach ($_SERVER as $name => $value) {
+            if (substr($name, 0, 5) == 'HTTP_') {
+                $headers[str_replace(' ', '-', ucwords(strtolower(str_replace('_', ' ', substr($name, 5)))))] = $value;
+            }
+        }
+
+        return $headers ?? [];
     }
 
     /**

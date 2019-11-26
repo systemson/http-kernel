@@ -22,14 +22,21 @@
         }
     },
     "require": {
-        "php": ">=7.2.0",
-        "psr/http-server-handler": "^1.0",
-        "psr/http-message": "^1.0",
+        "php": ">=7.3.0",
+        "amber/collection": "0.6.*",
+        "amber/common": "dev-master",
+        "amber/phraser": "^0.0.8@beta",
+        "psr/http-client": "^1.0",
         "psr/http-factory": "^1.0",
-        "psr/http-server-middleware": "^1.0"
+        "psr/http-message": "^1.0",
+        "psr/http-server-handler": "^1.0",
+        "psr/http-server-middleware": "^1.0",
+        "sunrise/stream": "^1.0",
+        "symfony/routing": "^4.2"
     },
     "require-dev": {
-        "php-coveralls/php-coveralls": "^2.1"
+        "php-coveralls/php-coveralls": "^2.1",
+        "symfony/var-dumper": "^4.2"
     },
     "scripts": {
         "test": "phpunit",

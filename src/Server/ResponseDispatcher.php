@@ -15,11 +15,12 @@ class ResponseDispatcher
     {
         if (headers_sent()) {
             throw new \RuntimeException('Headers are already sent.');
+            die();
         }
 
         $this
-            ->sendHeaders($response)
             ->sendStatusLine($response)
+            ->sendHeaders($response)
             ->sendContent($response)
         ;
 
@@ -40,7 +41,12 @@ class ResponseDispatcher
         return $this;
     }
 
-    protected function sendStatusLine(ResponseInterface $response)
+    /**
+     * Sends the response status line header.
+     *
+     * @return self
+     */
+    protected function sendStatusLine(ResponseInterface $response): self
     {
         $status = sprintf(
             'HTTP/%s %d %s',

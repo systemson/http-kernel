@@ -6,7 +6,6 @@ use Psr\Http\Message\UriInterface;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Amber\Http\Message\Traits\ClonableTrait;
 use Amber\Collection\Collection;
-use Amber\Collection\Contracts\CollectionInterface;
 use Amber\Phraser\Phraser;
 
 /**
@@ -66,7 +65,7 @@ class Uri implements UriInterface
     /**
      * @var array $query
      */
-    protected $query = [];
+    public $query = [];
 
     /**
      * @var array $fragment
@@ -89,7 +88,7 @@ class Uri implements UriInterface
     public function __construct(string $uri = '')
     {
         if ($uri != '') {
-            $array = parse_url($uri);
+            //$array = parse_url($uri);
 
             \extract(parse_url($uri));
 
@@ -129,7 +128,7 @@ class Uri implements UriInterface
     {
         $components = parse_url($uri);
 
-        return self::fromComponents($components);
+        return self::fromComponents($components ?? []);
     }
 
     /**
@@ -155,17 +154,13 @@ class Uri implements UriInterface
      *
      * @return array
      */
-    protected static function getComponentsFromServerParams(CollectionInterface $server): array
+    protected static function getComponentsFromServerParams($server): array
     {
-        if ($server->get('REQUEST_URI')) {
-            $path = explode('?', $server->get('REQUEST_URI'))[0];
-        }
-
         return [
-            'scheme' => strtolower(explode('/', $server->get('SERVER_PROTOCOL'))[0]),
+            'scheme' => strtolower(current(explode('/', $server->get('SERVER_PROTOCOL') ??  ''))),
             'host' => $server->get('HTTP_HOST'),
             'port' => $server->get('SERVER_PORT'),
-            'path' => $path ?? '/',
+            'path' => explode('?', $server->get('REQUEST_URI'))[0],
             'query' => $server->get('QUERY_STRING'),
         ];
     }
@@ -259,7 +254,7 @@ class Uri implements UriInterface
     public function getAuthority()
     {
         return (string) Phraser::make($this->getHost())
-            ->prepend($this->getUserInfo() . '@', $this->getUserInfo() != '')
+            ->prepend($this->getUserInfo() . '@', $this->getUserInfo())
             ->append(':' . $this->getPort(), $this->getPort())
         ;
     }
@@ -282,7 +277,7 @@ class Uri implements UriInterface
     public function getUserInfo()
     {
         return (string) Phraser::make()
-            ->append($this->user, $this->user)
+            ->append("{$this->user}", $this->user)
             ->append(":{$this->pass}", $this->pass)
         ;
     }
@@ -306,7 +301,7 @@ class Uri implements UriInterface
         $new = $this->clone();
 
         $new->user = $user;
-        $new->password = $password;
+        $new->pass = $password;
 
         return $new;
     }
@@ -324,7 +319,7 @@ class Uri implements UriInterface
      */
     public function getHost()
     {
-        return $this->host;
+        return "{$this->host}";
     }
 
     /**
@@ -365,11 +360,7 @@ class Uri implements UriInterface
      */
     public function getPort()
     {
-        if ($this->port == '' || $this->port == static::DEFAULT_PORT[$this->getScheme()]) {
-            return;
-        }
-
-        return (int) $this->port;
+        return $this->port;
     }
 
     /**
@@ -485,7 +476,7 @@ class Uri implements UriInterface
             return '';
         }
 
-        return http_build_query($this->query);
+        return preg_replace('/%5B[0-9]+%5D/simU', '[]', http_build_query($this->query));
     }
 
     /**

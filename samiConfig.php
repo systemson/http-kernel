@@ -17,9 +17,9 @@ $versions = GitVersionCollection::create($dir)
 return new Sami($dir, array(
     //'theme'                => 'symfony',
     'versions'             => $versions,
-    'title'                => 'Amber/Collection API',
+    'title'                => 'Amber/HttpKernell API',
     'build_dir'            => __DIR__.'/tmp/build/%version%',
     'cache_dir'            => __DIR__.'/tmp/cache/sami/%version%',
-    'remote_repository'    => new GitHubRemoteRepository('systemson/collection', dirname($dir)),
+    'remote_repository'    => new GitHubRemoteRepository('systemson/http-kernell', dirname($dir)),
     'default_opened_level' => 10,
 ));
