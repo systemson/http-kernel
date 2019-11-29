@@ -18,7 +18,7 @@ trait MessageTrait
      */
     public function getProtocolVersion()
     {
-        return $this->protocol;
+        return $this->version;
     }
 
     /**
@@ -38,7 +38,7 @@ trait MessageTrait
     {
         $new = $this->clone();
 
-        $new->protocol = $version;
+        $new->version = $version;
 
         return $new;
     }

@@ -44,7 +44,7 @@ class Response implements ResponseInterface, StatusCodeInterface
         $headers = []
     ) {
         $this->code = $code;
-        $this->reasonPhrase = $reasonPhrase ?? self::REASON_PHRASE[$code];
+        $this->reasonPhrase = empty($reasonPhrase) ? self::REASON_PHRASE[$code] : $reasonPhrase;
         $this->headers = new Collection($headers);
         $this->body = $body;
     }

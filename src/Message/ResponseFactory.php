@@ -21,12 +21,7 @@ class ResponseFactory implements ResponseFactoryInterface, StatusCodeInterface
         int $code = self::STATUS_OK,
         string $reasonPhrase = ''
     ): ResponseInterface {
-        $response = new Response();
-
-        return $response
-            //->withHeader('Cache-Control', ['no-cache', 'private'])
-            ->withStatus($code, $reasonPhrase)
-        ;
+        return new Response($code, $reasonPhrase);
     }
 
     /**
@@ -58,53 +53,6 @@ class ResponseFactory implements ResponseFactoryInterface, StatusCodeInterface
     public function created(string $reasonPhrase = ''): ResponseInterface
     {
         return $this->createResponse(self::STATUS_CREATED, $reasonPhrase);
-    }
-
-    /**
-     * Create a new json response.
-     *
-     * @param mixed  $content      The content that must be parsed to json and returned.
-     * @param int    $code         HTTP status code; defaults to 200.
-     * @param string $reasonPhrase Reason phrase to associate with status code.
-     *
-     * @return ResponseInterface
-     */
-    public function json(
-        $content = null,
-        int $code = self::STATUS_OK,
-        string $reasonPhrase = ''
-    ): ResponseInterface {
-        $response = $this->createResponse($code, $reasonPhrase);
-
-        $response->getBody()
-            ->write(json_encode($content))
-        ;
-
-        return $response
-            ->withHeader('Content-Type', 'application/json')
-        ;
-    }
-
-    /**
-     * A 303 status code, or Redirect, is meant to redirect a POST, PUT, PATCH, DELETE request to a GET resource.
-     *
-     * @param string $to The url to redirect to.
-     *
-     * @return ResponseInterface
-     */
-    public function redirect(string $to = '/'): ResponseInterface
-    {
-        return $this->createResponse(self::STATUS_SEE_OTHER)->withHeader('Location', $to);
-    }
-
-    /**
-     * A 303 status code, or Redirect, is meant to redirect a POST, PUT, PATCH, DELETE request to a GET resource.
-     *
-     * @return ResponseInterface
-     */
-    public function redirectBack(): ResponseInterface
-    {
-        return $this->redirect($_SERVER['HTTP_REFERER']);
     }
 
     /**
@@ -247,5 +195,52 @@ class ResponseFactory implements ResponseFactoryInterface, StatusCodeInterface
     public function gatewayTimeout(string $reasonPhrase = ''): ResponseInterface
     {
         return $this->createResponse(self::STATUS_GATEWAY_TIMEOUT, $reasonPhrase);
+    }
+
+    /**
+     * Create a new json response.
+     *
+     * @param mixed  $content      The content that must be parsed to json and returned.
+     * @param int    $code         HTTP status code; defaults to 200.
+     * @param string $reasonPhrase Reason phrase to associate with status code.
+     *
+     * @return ResponseInterface
+     */
+    public function json(
+        $content = null,
+        int $code = self::STATUS_OK,
+        string $reasonPhrase = ''
+    ): ResponseInterface {
+        $response = $this->createResponse($code, $reasonPhrase);
+
+        $response->getBody()
+            ->write(json_encode($content))
+        ;
+
+        return $response
+            ->withHeader('Content-Type', 'application/json')
+        ;
+    }
+
+    /**
+     * A 303 status code, or Redirect, is meant to redirect a POST, PUT, PATCH, DELETE request to a GET resource.
+     *
+     * @param string $to The url to redirect to.
+     *
+     * @return ResponseInterface
+     */
+    public function redirect(string $to = '/'): ResponseInterface
+    {
+        return $this->createResponse(self::STATUS_SEE_OTHER)->withHeader('Location', $to);
+    }
+
+    /**
+     * A 303 status code, or Redirect, is meant to redirect a POST, PUT, PATCH, DELETE request to a GET resource.
+     *
+     * @return ResponseInterface
+     */
+    public function redirectBack(): ResponseInterface
+    {
+        return $this->redirect($_SERVER['HTTP_REFERER']);
     }
 }

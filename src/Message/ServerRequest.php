@@ -55,7 +55,7 @@ class ServerRequest implements ServerRequestInterface
     protected $version;
     protected $method;
     protected $uri;
-    protected $protocol = self::PROTOCOL_VERSION;
+    protected $protocol;
     protected $body;
 
     public $headers;
@@ -187,7 +187,7 @@ class ServerRequest implements ServerRequestInterface
     {
         $new = $this->clone();
 
-        $new->cookies = new Collection($array);
+        $new->cookies = new Collection($cookies);
 
         return $new;
     }
