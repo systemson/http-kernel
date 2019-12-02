@@ -2,22 +2,15 @@
 
 namespace Amber\Http\Message;
 
-use Psr\Container\ContainerInterface;
 use Psr\Http\Message\UploadedFileFactoryInterface;
 use Psr\Http\Message\UploadedFileInterface;
 use Psr\Http\Message\StreamFactoryInterface;
 use Psr\Http\Message\StreamInterface;
-use Amber\Http\Message\Utils\StatusCodeInterface;
 use Sunrise\Stream\StreamFactory;
 
 class FileFactory implements UploadedFileFactoryInterface
 {
-    protected $container;
-
-    public function __construct(ContainerInterface $container = null)
-    {
-        $this->container = $container;
-    }
+    protected $streamFactory;
 
     /**
      * Create a new uploaded file.
@@ -74,11 +67,11 @@ class FileFactory implements UploadedFileFactoryInterface
 
     protected function getStreamFactory(): StreamFactoryInterface
     {
-        if ($this->container instanceof ContainerInterface && $this->container->has(StreamFactoryInterface::class)) {
-            return $this->container->get(StreamFactoryInterface::class);
+        if (!$this->streamFactory instanceof StreamFactory) {
+            $this->streamFactory = new StreamFactory();
         }
 
-        return new StreamFactory();
+        return $this->streamFactory;
     }
 
     protected function createStreamFromFile(string $filename): StreamInterface

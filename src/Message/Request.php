@@ -37,9 +37,8 @@ class Request implements RequestInterface, RequestMethodInterface
     protected $version;
     protected $method;
     protected $uri;
+    protected $headers;
     protected $body;
-
-    public $headers;
 
     const PROTOCOL_VERSION = '1.1';
 
@@ -68,10 +67,9 @@ class Request implements RequestInterface, RequestMethodInterface
     {
         $new = new static(
             Uri::fromGlobals(),
-            $this->server->get('REQUEST_METHOD'),
+            $_SERVER['REQUEST_METHOD'] ?? self::METHOD_GET,
             null,
-            getallheaders(),
-            explode('/', $this->server->get('SERVER_PROTOCOL'))[1]
+            self::getGlobalHeaders()
         );
 
         return $new;

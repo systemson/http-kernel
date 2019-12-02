@@ -30,7 +30,7 @@ class Response implements ResponseInterface, StatusCodeInterface
         ResponsetUtilsTrait
     ;
 
-    public $protocol = '1.1';
+    public $version = '1.1';
     public $code;
     public $reasonPhrase;
     public $body;

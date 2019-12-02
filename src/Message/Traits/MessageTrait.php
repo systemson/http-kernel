@@ -5,6 +5,18 @@ namespace Amber\Http\Message\Traits;
 use Psr\Http\Message\StreamInterface;
 use Sunrise\Stream\StreamFactory;
 
+/**
+ * HTTP messages consist of requests from a client to a server and responses
+ * from a server to a client. This interface defines the methods common to
+ * each.
+ *
+ * Messages are considered immutable; all methods that might change state MUST
+ * be implemented such that they retain the internal state of the current
+ * message and return an instance that contains the changed state.
+ *
+ * @link http://www.ietf.org/rfc/rfc7230.txt
+ * @link http://www.ietf.org/rfc/rfc7231.txt
+ */
 trait MessageTrait
 {
     use ClonableTrait;

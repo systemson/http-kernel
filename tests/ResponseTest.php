@@ -8,6 +8,10 @@ use PHPUnit\Framework\TestCase;
 
 class ResponseTest extends TestCase
 {
+    use MessageTestTrait;
+
+    protected $message = Response::class;
+
     public function testResponse()
     {
         $response = new Response();

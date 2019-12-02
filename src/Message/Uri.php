@@ -73,7 +73,7 @@ class Uri implements UriInterface
     protected $fragment;
 
     /**
-     * A array pairing schmeme and its default port.
+     * An array pairing schmeme and its default port.
      */
     const DEFAULT_PORT = [
         'http' => 80,
@@ -550,6 +550,21 @@ class Uri implements UriInterface
     /**
      * Return the string representation as a URI reference.
      *
+     * @return string
+     */
+    public function toString(): string
+    {
+        return (string) Phraser::make('')
+            ->append($this->getScheme() . '://', $this->getScheme())
+            ->append($this->getAuthority() .  $this->getPath())
+            ->append('?' . $this->getQuery(), $this->getQuery())
+            ->append('#' . $this->getFragment(), $this->getFragment())
+        ;
+    }
+
+    /**
+     * Return the string representation as a URI reference.
+     *
      * Depending on which components of the URI are present, the resulting
      * string is either a full URI or relative reference according to RFC 3986,
      * Section 4.1. The method concatenates the various components of the URI,
@@ -572,11 +587,6 @@ class Uri implements UriInterface
      */
     public function __toString()
     {
-        return (string) Phraser::make('')
-            ->append($this->getScheme() . '://', $this->getScheme())
-            ->append($this->getAuthority() .  $this->getPath())
-            ->append('?' . $this->getQuery(), $this->getQuery())
-            ->append('#' . $this->getFragment(), $this->getFragment())
-        ;
+        return $this->toString();
     }
 }

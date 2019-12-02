@@ -127,6 +127,6 @@ class UriTest extends TestCase
     {
         $uri = Uri::fromGlobals();
 
-        $this->assertEquals('', (string) $uri);
+        $this->assertEquals('', $uri->toString());
     }
 }

@@ -4,6 +4,7 @@ namespace Amber\Http\Message\Traits;
 
 use Psr\Http\Message\StreamInterface;
 use Psr\Http\Message\UriInterface;
+use Amber\Http\Message\Uri;
 
 /**
  * Representation of an outgoing, client-side request.
@@ -46,8 +47,8 @@ trait RequestTrait
      */
     public function getRequestTarget()
     {
-        if (!is_null($this->uri)) {
-            return (string) $this->uri;
+        if ($this->uri instanceof UriInterface && !empty($uriString = $this->uri->toString())) {
+            return $uriString;
         }
 
         return '/';
@@ -74,7 +75,7 @@ trait RequestTrait
     {
         $new = $this->clone();
 
-        //$new->version = $version;
+        $new->uri = Uri::fromString($requestTarget);
 
         return $new;
     }
@@ -160,6 +161,10 @@ trait RequestTrait
     public function withUri(UriInterface $uri, $preserveHost = false)
     {
         $new = $this->clone();
+
+        if ($preserveHost && !empty($host = $this->getUri()->getHost())) {
+            $uri = $uri->withHost($host);
+        }
 
         $new->uri = $uri;
 
