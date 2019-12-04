@@ -19,7 +19,7 @@ class ResponseFactory implements ResponseFactoryInterface, StatusCodeInterface
      */
     public function createResponse(
         int $code = self::STATUS_OK,
-        string $reasonPhrase = ''
+        string $reasonPhrase = null
     ): ResponseInterface {
         return new Response($code, $reasonPhrase);
     }

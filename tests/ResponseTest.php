@@ -99,7 +99,7 @@ class ResponseTest extends TestCase
         $this->assertEquals('application/json', $response->getHeaderLine('Content-Type'));
     }
 
-    public function testRedirect()
+    public function testRedirects()
     {
         $factory = new ResponseFactory();
         $url = 'https://google.com';

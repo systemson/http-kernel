@@ -48,17 +48,8 @@ use Amber\Http\Message\Utils\FileCollection;
  * be implemented such that they retain the internal state of the current
  * message and return an instance that contains the changed state.
  */
-class ServerRequest implements ServerRequestInterface
+class ServerRequest extends Request implements ServerRequestInterface
 {
-    use RequestTrait, RequestUtilsTrait;
-
-    protected $version;
-    protected $method;
-    protected $uri;
-    protected $protocol;
-    protected $body;
-
-    public $headers;
     public $server;
     public $cookies;
     public $query;
@@ -66,28 +57,34 @@ class ServerRequest implements ServerRequestInterface
     public $files;
     public $attributes;
 
-    const PROTOCOL_VERSION = '1.1';
-
     public function __construct(
-        string $version = self::PROTOCOL_VERSION,
-        string $method = null,
         string $uri = '',
-        array $headers = [],
+        string $method = self::METHOD_GET,
         StreamInterface $body = null,
+        array $headers = [],
+        string $version = self::PROTOCOL_VERSION,
         $params = []
     ) {
+        parent::__construct(
+            $uri,
+            $method,
+            $body,
+            $headers,
+            $version,
+            $params
+        );
+
+        $this->setParams($params);
+    }
+
+    protected function setParams(array $params = [])
+    {
         $this->server = new ImmutableCollection($params['server'] ?? []);
         $this->cookies = new Collection($params['cookies'] ?? []);
         $this->query = new Collection($params['query'] ?? []);
         $this->files = new FileCollection($params['files'] ?? []);
         $this->post = new Collection($params['post'] ?? []);
-        $this->headers = new Collection($headers);
         $this->attributes = new Collection($params['attributes'] = []);
-
-        $this->version = $version;
-        $this->method = $method;
-        $this->uri = Uri::fromString($uri);
-        $this->body = $body;
     }
 
     /**
@@ -100,11 +97,11 @@ class ServerRequest implements ServerRequestInterface
         $serverProtocolArray = explode('/', $_SERVER['SERVER_PROTOCOL'] ?? self::PROTOCOL_VERSION);
 
         $new = new static(
-            end($serverProtocolArray),
-            $_SERVER['REQUEST_METHOD'] ?? null,
             Uri::fromGlobals(),
-            self::getGlobalHeaders(),
+            $_SERVER['REQUEST_METHOD'] ?? self::METHOD_GET,
             null,
+            self::getGlobalHeaders(),
+            end($serverProtocolArray),
             [
                 'server' => $_SERVER,
                 'cookies' => $_COOKIE,
@@ -129,7 +126,7 @@ class ServerRequest implements ServerRequestInterface
      */
     public function getServerParams()
     {
-        return $this->server;
+        return $this->server->toArray();
     }
 
     /**
@@ -144,7 +141,7 @@ class ServerRequest implements ServerRequestInterface
      */
     public function getCookieParams()
     {
-        return $this->cookies;
+        return $this->cookies->toArray();
     }
 
     /**
@@ -187,7 +184,7 @@ class ServerRequest implements ServerRequestInterface
      */
     public function getQueryParams()
     {
-        return $this->query;
+        return $this->query->toArray();
     }
 
     /**
@@ -235,7 +232,7 @@ class ServerRequest implements ServerRequestInterface
      */
     public function getUploadedFiles()
     {
-        return $this->files;
+        return $this->files->toArray();
     }
 
     /**
@@ -275,7 +272,7 @@ class ServerRequest implements ServerRequestInterface
      */
     public function getParsedBody()
     {
-        return $this->post;
+        return $this->post->toArray();
     }
 
     /**
@@ -328,7 +325,7 @@ class ServerRequest implements ServerRequestInterface
      */
     public function getAttributes()
     {
-        return $this->attributes;
+        return $this->attributes->toArray();
     }
 
     /**

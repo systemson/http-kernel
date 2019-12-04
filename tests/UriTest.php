@@ -118,7 +118,7 @@ class UriTest extends TestCase
 
     public function testUriFromRequest()
     {
-        $uri = Uri::fromRequest($request = new ServerRequest());
+        $uri = Uri::fromRequest(new ServerRequest());
 
         $this->assertEquals('', (string) $uri);
     }

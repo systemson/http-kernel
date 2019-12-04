@@ -44,7 +44,7 @@ class ServerRequestTest extends TestCase
         $array = $this->getParamsArray();
 
         $request = $request->withCookieParams($array);
-        $this->assertEquals($array, $request->getCookieParams()->toArray());
+        $this->assertEquals($array, $request->getCookieParams());
     }
 
     /**
@@ -55,7 +55,7 @@ class ServerRequestTest extends TestCase
         $array = $this->getParamsArray();
 
         $request = $request->withQueryParams($array);
-        $this->assertEquals($array, $request->getQueryParams()->toArray());
+        $this->assertEquals($array, $request->getQueryParams());
     }
 
     /**
@@ -68,7 +68,7 @@ class ServerRequestTest extends TestCase
         ];
 
         $request = $request->withUploadedFiles($array);
-        $this->assertEquals($array, $request->getUploadedFiles()->toArray());
+        $this->assertEquals($array, $request->getUploadedFiles());
     }
 
     /**
@@ -79,7 +79,7 @@ class ServerRequestTest extends TestCase
         $array = $this->getParamsArray();
 
         $request = $request->withParsedBody($array);
-        $this->assertEquals($array, $request->getParsedBody()->toArray());
+        $this->assertEquals($array, $request->getParsedBody());
     }
 
     /**
@@ -94,13 +94,13 @@ class ServerRequestTest extends TestCase
             $request = $request->withAttribute($name, $value);
         }
 
-        $this->assertEquals($array, $request->getAttributes()->toArray());
+        $this->assertEquals($array, $request->getAttributes());
         $this->assertEquals($array[$names[0]], $request->getAttribute($names[0]));
         $this->assertEquals($array[$names[1]], $request->getAttribute($names[1]));
         $request->withoutAttribute($names[0]);
         
         unset($array[$names[0]]);
-        $this->assertEquals($array, $request->getAttributes()->toArray());
+        $this->assertEquals($array, $request->getAttributes());
     }
 
     public function testFromGlobals()

@@ -6,8 +6,7 @@ use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Server\RequestHandlerInterface as Handler;
-use Psr\Http\Message\ResponseFactoryInterface;
-use Amber\Http\Message\ResponseFactory;
+use Amber\Http\Server\Traits\ResponseFactoryTrait;
 
 /**
  * Participant in processing a server request and response.
@@ -18,6 +17,8 @@ use Amber\Http\Message\ResponseFactory;
  */
 abstract class RequestMiddleware implements MiddlewareInterface
 {
+    use ResponseFactoryTrait;
+
     /**
      * Process an incoming server request.
      *
@@ -28,31 +29,4 @@ abstract class RequestMiddleware implements MiddlewareInterface
      * @return Response
      */
     abstract public function process(Request $request, Handler $handler): Response;
-
-    /**
-     * Create a new response.
-     *
-     * @param int $code HTTP status code; defaults to 200.
-     * @param string $reasonPhrase Reason phrase to associate with status code.
-     *
-     * @return Response
-     */
-    protected function createResponse(int $code = 200, string $reasonPhrase = ''): Response
-    {
-        return $this->responseFactory()->createResponse($code, $reasonPhrase);
-    }
-
-    /**
-     * Returns a instance of ResponseFactory.
-     *
-     * @return ResponseFactoryInterface
-     */
-    public function responseFactory(): ResponseFactoryInterface
-    {
-        if ($this->factory instanceof ResponseFactoryInterface) {
-            return $this->factory;
-        }
-
-        return new ResponseFactory();
-    }
 }

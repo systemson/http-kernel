@@ -140,7 +140,7 @@ class Uri implements UriInterface
      */
     public static function fromRequest(Request $request): UriInterface
     {
-        $server = $request->getServerParams();
+        $server = new Collection($request->getServerParams());
 
         $components = self::getComponentsFromServerParams($server);
 
