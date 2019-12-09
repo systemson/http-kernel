@@ -30,7 +30,7 @@ trait MessageTestTrait
     {
         $message = $this->mockMessage();
 
-        $this->assertEquals([], $message->getHeaders()->toArray());
+        $this->assertEquals([], $message->getHeaders());
 
         $name = 'Test-Header';
         $value = 'Test';
@@ -50,7 +50,7 @@ trait MessageTestTrait
         $allValues = array_merge((array) $value, $addedValues);
 
         $this->assertEquals($allValues, $message->getHeader($name));
-        $this->assertEquals(implode(', ', $allValues), $message->getHeaderLine($name));
+        $this->assertEquals(implode(',', $allValues), $message->getHeaderLine($name));
 
         $message = $message->withoutHeader($name);
         $this->assertFalse($message->hasHeader($name));

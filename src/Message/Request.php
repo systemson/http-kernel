@@ -37,8 +37,8 @@ class Request implements RequestInterface, RequestMethodInterface
     protected $version;
     protected $method;
     protected $uri;
-    protected $headers;
     protected $body;
+    public $headers;
 
     const PROTOCOL_VERSION = '1.1';
 
@@ -49,13 +49,22 @@ class Request implements RequestInterface, RequestMethodInterface
         array $headers = [],
         string $version = self::PROTOCOL_VERSION
     ) {
-        $this->headers = new Collection($headers);
+        $this->headers = new Collection($this->handleGlobal($headers));
 
         $this->version = $version;
         $this->method = strtoupper($method);
         $this->uri = Uri::fromString($uri);
 
         $this->body = $body;
+    }
+
+    protected function handleGlobal(array $global, string $delimiter = ','): array
+    {
+        foreach ($global as $name => $value) {
+            $return[$name] = explode($delimiter, $value);
+        }
+
+        return $return ?? [];
     }
 
     /**

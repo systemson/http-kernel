@@ -82,7 +82,7 @@ trait MessageTrait
      */
     public function getHeaders()
     {
-        return $this->headers;
+        return $this->headers->toArray();
     }
 
     /**
@@ -139,7 +139,7 @@ trait MessageTrait
     public function getHeaderLine($name)
     {
         if ($this->hasHeader($name)) {
-            return implode(', ', $this->headers->get($name));
+            return implode(',', $this->headers->get($name));
         }
         return '';
     }
@@ -164,6 +164,24 @@ trait MessageTrait
         $new = $this->clone();
 
         $new->headers->set($name, (array) $value);
+
+        return $new;
+    }
+
+    /**
+     * Return an instance with the provided values replacing the specified headers.
+     *
+     * @param  aray $headers
+     * @return static
+     * @throws \InvalidArgumentException for invalid header names or values.
+     */
+    public function withHeaders($headers)
+    {
+        $new = $this->clone();
+
+        foreach ($headers as $name => $value) {
+            $new->headers->set($name, (array) $value);
+        }
 
         return $new;
     }
