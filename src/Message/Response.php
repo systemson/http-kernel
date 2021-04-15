@@ -5,7 +5,7 @@ namespace Amber\Http\Message;
 use Psr\Http\Message\StreamInterface;
 use Psr\Http\Message\ResponseInterface;
 use Amber\Http\Message\Traits\MessageTrait;
-use Amber\Http\Message\Traits\ResponsetUtilsTrait;
+use Amber\Http\Message\Traits\ResponseUtilsTrait;
 use Amber\Http\Message\Utils\StatusCodeInterface;
 use Amber\Collection\Collection;
 
@@ -27,7 +27,7 @@ use Amber\Collection\Collection;
 class Response implements ResponseInterface, StatusCodeInterface
 {
     use MessageTrait,
-        ResponsetUtilsTrait
+        ResponseUtilsTrait
     ;
 
     public $version = '1.1';

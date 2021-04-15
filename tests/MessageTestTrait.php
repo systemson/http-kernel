@@ -69,7 +69,7 @@ trait MessageTestTrait
 
         $array = ['key' => 'value'];
 
-        $new = StreamFactory::createStream(json_encode($array));
+        $new = (new StreamFactory)->createStream(json_encode($array));
 
         $message = $message->withBody($new);
         $this->assertEquals(json_encode($array), $message->getBody()->__toString());

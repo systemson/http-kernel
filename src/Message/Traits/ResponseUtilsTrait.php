@@ -4,7 +4,7 @@ namespace Amber\Http\Message\Traits;
 
 use Psr\Http\Message\ResponseInterface;
 
-trait ResponsetUtilsTrait
+trait ResponseUtilsTrait
 {
     /**
      * Create a new json response.
